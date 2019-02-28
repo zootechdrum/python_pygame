@@ -108,5 +108,33 @@ def main():
                         pygame.time.wait(2000)
 
                         # Reset the board
-                        
+                        mainBoard = getRandomizedBoard()
+                        revealedBoxes = generateRevealedBoxesData(False)
+
+                        #show the fully unrevealed board for a second.
+                        drawBoard(mainBoard, revealedBoxes)
+                        pygame.display.update()
+                        pygame.wait(1000)
+
+                        #Replay the start game animation
+                        startGameAnimation(mainBoard)
+                      firstSelection = None # reset firstSelection variable
+
+
+        #Redraw the screen and wait a clock tick.
+        pygame.display.update()
+        FPSCLOCK.tick(FPS)
+
+def generateRevealedBoxesData(val):
+    revealedBoxes = []
+    for i in range(BOARDWIDTH):
+        revealedBoxes.append([val] * BOARDHEIGHT)
+    return revealedBoxes
+
+def getRandomizedBoard():
+    # Get a list of every possible shape in every possible color.
+    icons = []
+    for color in ALLCOLORS:
+        for shape in ALLSHAPES:
+            icons.append( (shape, color) )                        
              

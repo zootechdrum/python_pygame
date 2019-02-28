@@ -106,5 +106,7 @@ def main():
                       elif hasWon(revealedBoxes):
                         gameWonAnimation(mainBoard)
                         pygame.time.wait(2000)
+
+                        # Reset the board
                         
              

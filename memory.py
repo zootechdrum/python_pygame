@@ -79,47 +79,49 @@ def main():
                 mousex, mousey = event.pos
                 mouseClicked = True
 
-        boxx, boxy = getBoxAtPixel(mousex, mousey)
-        if boxx != None and boxy != None:
-            # The mouse is currently over a box.
-            if not revealedBoxes[boxx][boxy]:
-                drawHighlightBox(boxx, boxy)
-            if not revealedBoxes[boxx][boxy] and mouseClicked:
-                revealBoxesAnimation(mainBoard, [(boxx, boxy)])
-                revealedBoxes[boxx][boxy] = True # set the box as "revealed"
-                if firstSelection == None: # the current box was the first box clicked
-                    firstSelection = (boxx, boxy)
-                else: # the current box was the second box clicked
-                    # Check if there is a match between the two icons.
-                    icon1shape, icon1color = getShapeAndColor(mainBoard, firstSelection[0], firstSelection[1])
-                    icon2shape, icon2color = getShapeAndColor(mainBoard, boxx, boxy)
+            boxx, boxy = getBoxAtPixel(mousex, mousey)
+            if boxx != None and boxy != None:
+                # The mouse is currently over a box.
+                if not revealedBoxes[boxx][boxy]:
+                    drawHighlightBox(boxx, boxy)
+                if not revealedBoxes[boxx][boxy] and mouseClicked:
+                    revealBoxesAnimation(mainBoard, [(boxx, boxy)])
+                    revealedBoxes[boxx][boxy] = True # set the box as "revealed"
+                    if firstSelection == None: # the current box was the first box clicked
+                       firstSelection = (boxx, boxy)
+                       pygame.display.update()
+                    else: # the current box was the second box clicked
+                        # Check if there is a match between the two icons.
+                        icon1shape, icon1color = getShapeAndColor(mainBoard, firstSelection[0], firstSelection[1])
+                        icon2shape, icon2color = getShapeAndColor(mainBoard, boxx, boxy)
+                        
+                        if icon1shape != icon2shape or icon1color != icon2color:
+                           pygame.display.update()
+                            # Icons don't match. Re-cover up both selections.
+                           coverBoxesAnimation(mainBoard, [(firstSelection[0], firstSelection[1]), (boxx, boxy)])
+                           pygame.display.update()
+                           revealedBoxes[firstSelection[0]][firstSelection[1]] = False
+                           revealedBoxes[boxx][boxy] = False                 
+                        elif hasWon(revealedBoxes): # check if all pairs found
+                            gameWonAnimation(mainBoard)
+                            pygame.time.wait(1000)
 
-                    if icon1shape != icon2shape or icon1color != icon2color:
-                        # Icons don't match. Re-cover up both selections.
-                        pygame.time.wait(1000) # 1000 milliseconds = 1 sec
-                        coverBoxesAnimation(mainBoard, [(firstSelection[0], firstSelection[1]), (boxx, boxy)])
-                        revealedBoxes[firstSelection[0]][firstSelection[1]] = False
-                        revealedBoxes[boxx][boxy] = False
-                    elif hasWon(revealedBoxes): # check if all pairs found
-                        gameWonAnimation(mainBoard)
-                        pygame.time.wait(2000)
+                            # Reset the board
+                            mainBoard = getRandomizedBoard()
+                            revealedBoxes = generateRevealedBoxesData(False)
 
-                        # Reset the board
-                        mainBoard = getRandomizedBoard()
-                        revealedBoxes = generateRevealedBoxesData(False)
+                            # Show the fully unrevealed board for a second.
+                            drawBoard(mainBoard, revealedBoxes)
+                            pygame.display.update()
+                            pygame.time.wait(1000)
 
-                        # Show the fully unrevealed board for a second.
-                        drawBoard(mainBoard, revealedBoxes)
-                        pygame.display.update()
-                        pygame.time.wait(1000)
+                            # Replay the start game animation.
+                            startGameAnimation(mainBoard)
+                        firstSelection = None # reset firstSelection variable 
+            
+            # Redraw the screen and wait a clock tick.
+            
 
-                        # Replay the start game animation.
-                        startGameAnimation(mainBoard)
-                    firstSelection = None # reset firstSelection variable
-
-        # Redraw the screen and wait a clock tick.
-        pygame.display.update()
-        FPSCLOCK.tick(FPS)
 
 
 def generateRevealedBoxesData(val):
@@ -215,13 +217,13 @@ def drawBoxCovers(board, boxes, coverage):
         drawIcon(shape, color, box[0], box[1])
         if coverage > 0: # only draw the cover if there is an coverage
             pygame.draw.rect(DISPLAYSURF, BOXCOLOR, (left, top, coverage, BOXSIZE))
-    pygame.display.update()
-    FPSCLOCK.tick(FPS)
+    # pygame.display.update()
+    # FPSCLOCK.tick(FPS)
 
 
 def revealBoxesAnimation(board, boxesToReveal):
     # Do the "box reveal" animation.
-    for coverage in range(BOXSIZE, (-REVEALSPEED) - 1, -REVEALSPEED):
+    for coverage in range(BOXSIZE, (-REVEALSPEED) - 1, -40):
         drawBoxCovers(board, boxesToReveal, coverage)
 
 
